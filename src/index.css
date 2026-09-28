@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --color-paper: #e4e1db;
+  --color-ink: #1b1a18;
+  --color-muted: #8b877f;
+  --color-line: #cdc8bf;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Slider fino: trilho de 1px, polegar circular vazado */
+.range {
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.range::-webkit-slider-runnable-track {
+  height: 1px;
+  background: color-mix(in srgb, var(--color-ink) 28%, transparent);
+}
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -6px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-ink);
+  background: var(--color-paper);
+}
+.range::-moz-range-track {
+  height: 1px;
+  background: color-mix(in srgb, var(--color-ink) 28%, transparent);
+}
+.range::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-ink);
+  background: var(--color-paper);
+}
+.range:focus-visible {
+  outline: 1px dashed var(--color-muted);
+  outline-offset: 3px;
+}
+
+/* Checkbox quadrado minimalista */
+.check {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 55%, transparent);
+  background: transparent;
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+}
+.check::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: var(--color-ink);
+  transform: scale(0);
+  transition: transform 120ms ease;
+}
+.check:checked::after {
+  transform: scale(1);
+}
