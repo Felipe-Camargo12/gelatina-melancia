@@ -55,11 +55,12 @@ export function JellyPiece({ piece }) {
   )
 
   const onPointerDown = (e) => {
-    if (e.button !== 0 || useStore.getState().tool !== 'hand' || useStore.getState().paused) return
+    // Um segundo dedo sobre uma peça não agarra outra: ele torce a que já está na mão.
+    if (e.button !== 0 || grab.active || useStore.getState().tool !== 'hand' || useStore.getState().paused) return
     e.stopPropagation()
     const entry = registry.get(piece.id)
     if (!entry) return
-    beginGrab(entry, e.point, camera, e.pointer)
+    beginGrab(entry, e.point, camera, e.pointer, e.nativeEvent.pointerId)
     gl.domElement.style.cursor = 'grabbing'
   }
   const onPointerOver = (e) => {

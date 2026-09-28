@@ -20,13 +20,14 @@ export const grab = {
   plane: new THREE.Plane(), // plano de arraste (de frente para a câmera)
   ndc: new THREE.Vector2(), // ponteiro em NDC
   target: new THREE.Vector3(), // alvo no mundo
-  twist: 0, // impulso de torção acumulado pelo scroll (rad/s)
+  twist: 0, // impulso de torção acumulado pela rodinha ou pelo segundo dedo (rad/s)
+  pointerId: null, // ponteiro que agarrou (outro dedo na tela torce em vez de puxar)
 }
 
 const _q = new THREE.Quaternion()
 const _dir = new THREE.Vector3()
 
-export function beginGrab(entry, point, camera, ndc) {
+export function beginGrab(entry, point, camera, ndc, pointerId) {
   const body = entry.body
   const t = body.translation()
   const r = body.rotation()
@@ -39,6 +40,7 @@ export function beginGrab(entry, point, camera, ndc) {
   grab.twist = 0
   grab.active = true
   grab.id = entry.id
+  grab.pointerId = pointerId
 
   entry.wobble.grabLocal.copy(grab.local)
   entry.wobble.grabRadius = THREE.MathUtils.clamp(entry.meta.radius * 0.7, 0.3, 0.9)

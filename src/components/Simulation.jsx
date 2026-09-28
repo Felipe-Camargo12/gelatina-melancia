@@ -37,26 +37,41 @@ export function Simulation() {
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
   const statsClock = useRef(0)
 
-  // Ponteiro/scroll globais enquanto uma peça está agarrada (o cursor pode
-  // sair do canvas e passar por cima do painel sem soltar a peça).
+  // Ponteiro/rodinha globais enquanto uma peça está agarrada (o cursor pode
+  // sair do canvas e passar por cima do painel sem soltar a peça). Só o
+  // ponteiro que agarrou puxa e solta; um segundo dedo na tela torce a peça.
   useEffect(() => {
     const el = gl.domElement
+    const twisters = new Map() // pointerId → último clientX dos dedos extras
+    const onDown = (e) => {
+      if (grab.active && e.pointerId !== grab.pointerId) twisters.set(e.pointerId, e.clientX)
+    }
     const onMove = (e) => {
       if (!grab.active) return
-      const r = el.getBoundingClientRect()
-      grab.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
+      if (e.pointerId === grab.pointerId) {
+        const r = el.getBoundingClientRect()
+        grab.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
+      } else if (twisters.has(e.pointerId)) {
+        grab.twist += (e.clientX - twisters.get(e.pointerId)) * 0.02 // segundo dedo → torce a peça
+        twisters.set(e.pointerId, e.clientX)
+      }
     }
-    const onUp = () => grab.active && endGrab()
+    const onUp = (e) => {
+      twisters.delete(e.pointerId)
+      if (grab.active && e.pointerId === grab.pointerId) endGrab()
+    }
     const onWheel = (e) => {
       if (!grab.active) return
       e.preventDefault()
-      grab.twist += -e.deltaY * 0.012 // scroll enquanto segura → torce a peça
+      grab.twist += -e.deltaY * 0.012 // rodinha enquanto segura → torce a peça
     }
+    window.addEventListener('pointerdown', onDown)
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
     window.addEventListener('pointercancel', onUp)
     window.addEventListener('wheel', onWheel, { passive: false })
     return () => {
+      window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)

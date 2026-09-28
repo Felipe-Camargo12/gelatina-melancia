@@ -14,14 +14,14 @@ Tecnologias: React 19 · three r186 · @react-three/fiber 9 · drei 10 · @react
 
 ```
 src/
-├── App.jsx                  Canvas (câmera, mapeamento de tons) + Overlay + atalhos de teclado
+├── App.jsx                  layout (celular: página rolável; md+: canvas em tela cheia), Canvas, atalhos de teclado
 ├── store.js                 zustand: estado da interface + lista de peças
 ├── components/
 │   ├── Scene.jsx            luzes de estúdio, mapa de ambiente de Lightformers, chão/paredes, sombra de contato
 │   ├── Simulation.jsx       laço do frame: forças da Mão → passo manual do Rapier → molas → repouso → uniforms → estatísticas
 │   ├── JellyPiece.jsx       uma peça = RigidBody + ConvexHullCollider + malha de gelatina + malha em arame
 │   ├── Knife.jsx            ferramenta Faca: traço, cutelo 3D, animação de corte
-│   └── Overlay.jsx          interface 2D (título, estatísticas, painel de controles, "Por dentro do experimento")
+│   └── Overlay.jsx          interface 2D em pedaços: cabeçalho, dica + estatísticas, painéis ("Por dentro do experimento")
 ├── jelly/
 │   ├── constants.js         dimensões da fatia, escala ilustrativa, limites
 │   ├── geometry.js          malha estruturada da fatia (laje arredondada) + sementes 3D
@@ -56,7 +56,7 @@ src/
 
 ## Controles
 
-Mão: arraste uma peça para puxar; role a rodinha do mouse enquanto segura para torcer a peça; arrastar a mesa vazia gira a câmera.
+Mão: arraste uma peça para puxar; enquanto segura, role a rodinha do mouse ou arraste um segundo dedo na tela para torcer a peça; arrastar a mesa vazia gira a câmera.
 Faca: desenhe uma linha sobre a fatia e solte.
 Atalhos: `H` mão · `K` faca · `N` peteleco · `R` reiniciar · `Espaço` pausa.
 

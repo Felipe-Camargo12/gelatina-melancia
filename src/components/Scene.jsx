@@ -1,4 +1,5 @@
-import { useFrame } from '@react-three/fiber'
+import { useEffect } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei'
 import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
 import { useStore } from '../store.js'
@@ -58,6 +59,15 @@ export function Scene() {
   const grabbing = useStore((s) => s.grabbing)
   const pieces = useStore((s) => s.pieces)
   const variety = useStore((s) => s.variety)
+  // No desktop o alvo fica um pouco à direita (o painel ocupa a lateral). No
+  // celular o canvas é retrato: câmera centralizada e mais perto, para a fatia
+  // preencher a largura.
+  const narrow = useThree((s) => s.size.width < 768)
+  const camera = useThree((s) => s.camera)
+  useEffect(() => {
+    if (narrow) camera.position.set(0, 4.85, 6.4)
+    else camera.position.set(0.35, 5.7, 7.5)
+  }, [narrow, camera])
 
   return (
     <>
@@ -68,7 +78,7 @@ export function Scene() {
         enableRotate={tool === 'hand'}
         enablePan={false}
         enableDamping
-        target={[0.35, 0.3, 0]}
+        target={narrow ? [0, 0.3, 0] : [0.35, 0.3, 0]}
         minDistance={5.5}
         maxDistance={13}
         minPolarAngle={0.3}

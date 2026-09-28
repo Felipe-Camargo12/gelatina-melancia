@@ -3,8 +3,12 @@ import { useStore } from '../store.js'
 import { VARIETIES, VARIETY_KEYS } from '../jelly/varieties.js'
 
 /*
- * Interface 2D sobre o canvas. O contêiner é pointer-events-none (o canvas
- * recebe os cliques); só os painéis interativos reativam os eventos.
+ * Interface 2D, em pedaços que o App encaixa em volta do canvas.
+ *   celular — página rolável: cabeçalho → canvas → dica e estatísticas →
+ *             painéis; nada fica por cima da área de toque do canvas.
+ *   md+     — cada pedaço é posicionado sobre o canvas em tela cheia;
+ *             cabeçalho e rodapé são pointer-events-none (o canvas recebe
+ *             os cliques por baixo deles).
  */
 
 function HandIcon() {
@@ -164,7 +168,7 @@ function Stat({ label, value, unit, last }) {
       <Label className="!text-[10px]">{label}</Label>
       <p className="mt-1 whitespace-nowrap font-mono text-[17px] text-ink">
         {value}
-        {unit && <span className="ml-1 font-sans text-[10.5px] text-muted">{unit}</span>}
+        {unit && <span className="block font-sans text-[10.5px] text-muted md:ml-1 md:inline">{unit}</span>}
       </p>
     </div>
   )
@@ -186,7 +190,7 @@ function Stats() {
 const HINTS = {
   hand: [
     'Mão',
-    'Agarre qualquer peça — ponta, canto, polpa ou casca — e puxe. Role a rodinha do mouse enquanto segura para torcê-la. Arraste a mesa vazia para girar a câmera.',
+    'Agarre qualquer peça — ponta, canto, polpa ou casca — e puxe. Enquanto segura, role a rodinha do mouse ou arraste um segundo dedo para torcê-la. Arraste a mesa vazia para girar a câmera.',
   ],
   knife: [
     'Faca',
@@ -228,62 +232,69 @@ function Inside() {
   )
 }
 
-export function Overlay() {
-  const tool = useStore((s) => s.tool)
+/** Cabeçalho: rótulo + selo do renderer, título e subtítulo. */
+export function Header() {
   const paused = useStore((s) => s.paused)
-  const [hintTitle, hint] = HINTS[tool]
-
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 text-ink">
-      {/* Cabeçalho */}
-      <header className="absolute left-6 top-6 md:left-12 md:top-11">
+    <header className="px-4 pb-5 pt-4 md:pointer-events-none md:absolute md:left-12 md:top-11 md:z-10 md:p-0">
+      <div className="flex items-center justify-between gap-3">
         <Label className="max-sm:tracking-[0.14em]">Estudos de Materiais / Nº 009</Label>
-        <h1 className="mt-5 font-serif text-[52px] font-normal italic leading-[0.8] tracking-[-0.025em] md:mt-7 md:text-[72px] lg:text-[92px]">
-          Gelatina
-          <br />
-          <span className="ml-[0.5em]">de melancia.</span>
-        </h1>
-        <p className="mt-5 hidden font-serif text-[16.5px] leading-[1.45] text-ink/75 md:block">
-          Uma fatia de verão.
-          <br />
-          Um leve balançar.
-          <br />
-          Macia demais para dividir.
-        </p>
-      </header>
-
-      {/* Selo do renderer */}
-      <div className="absolute right-6 top-6 flex items-center gap-2 border border-line bg-paper/60 px-3 py-1.5 md:right-10 md:top-11">
-        <span className={`size-[6px] rounded-full ${paused ? 'bg-amber-600' : 'bg-emerald-700'}`} />
-        <span className="font-mono text-[10px] tracking-[0.18em] text-ink/80">
-          <span className="hidden sm:inline">WEBGL2 · </span>
-          {paused ? 'PAUSADO' : 'AO VIVO'}
-        </span>
-      </div>
-
-      {/* Dica da ferramenta + estatísticas */}
-      <footer className="absolute bottom-6 left-6 hidden w-[440px] md:bottom-10 md:left-12 md:block">
-        <p className="mb-4 max-w-[380px] font-serif text-[15px] italic leading-[1.5] text-ink/85">
-          <span className="mr-2 font-sans text-[10.5px] font-medium not-italic uppercase tracking-[0.2em] text-muted">
-            {hintTitle}
+        {/* Selo do renderer: na linha do rótulo no celular, no canto superior direito da tela no desktop */}
+        <div className="flex shrink-0 items-center gap-2 border border-line bg-paper/60 px-3 py-1.5 md:fixed md:right-10 md:top-11">
+          <span className={`size-[6px] rounded-full ${paused ? 'bg-amber-600' : 'bg-emerald-700'}`} />
+          <span className="font-mono text-[10px] tracking-[0.18em] text-ink/80">
+            <span className="hidden sm:inline">WEBGL2 · </span>
+            {paused ? 'PAUSADO' : 'AO VIVO'}
           </span>
-          {hint}
-        </p>
-        <Stats />
-        <p className="mt-2 max-w-[440px] font-sans text-[10.5px] leading-[1.5] text-muted">
-          Escala ilustrativa: 1 unidade da simulação ≈ 3 cm, goma a 1,3 g/cm³. Volume e energia são somados ao vivo sobre
-          todas as peças.
-        </p>
-      </footer>
+        </div>
+      </div>
+      <h1 className="mt-4 font-serif text-[48px] font-normal italic leading-[0.8] tracking-[-0.025em] md:mt-7 md:text-[72px] lg:text-[92px]">
+        Gelatina
+        <br />
+        <span className="ml-[0.5em]">de melancia.</span>
+      </h1>
+      <p className="mt-4 font-serif text-[14px] leading-[1.45] text-ink/75 md:mt-5 md:text-[16.5px]">
+        Uma fatia de verão.
+        <br />
+        Um leve balançar.
+        <br />
+        Macia demais para dividir.
+      </p>
+    </header>
+  )
+}
 
-      {/* Painel de controles */}
-      <div className="absolute bottom-24 right-4 top-auto w-[268px] md:bottom-auto md:right-10 md:top-[104px]">
+/** Dica da ferramenta + estatísticas. */
+export function Footer() {
+  const tool = useStore((s) => s.tool)
+  const [hintTitle, hint] = HINTS[tool]
+  return (
+    <footer className="px-4 pt-5 md:pointer-events-none md:absolute md:bottom-10 md:left-12 md:z-10 md:w-[440px] md:p-0">
+      <p className="mb-4 max-w-[380px] font-serif text-[15px] italic leading-[1.5] text-ink/85">
+        <span className="mr-2 font-sans text-[10.5px] font-medium not-italic uppercase tracking-[0.2em] text-muted">
+          {hintTitle}
+        </span>
+        {hint}
+      </p>
+      <Stats />
+      <p className="mt-2 max-w-[440px] font-sans text-[10.5px] leading-[1.5] text-muted">
+        Escala ilustrativa: 1 unidade da simulação ≈ 3 cm, goma a 1,3 g/cm³. Volume e energia são somados ao vivo sobre
+        todas as peças.
+      </p>
+    </footer>
+  )
+}
+
+/** Painel de controles + "Por dentro do experimento". */
+export function Panels() {
+  return (
+    <>
+      <div className="px-4 pt-6 md:absolute md:right-10 md:top-[104px] md:z-10 md:w-[268px] md:p-0">
         <ControlPanel />
       </div>
-
-      <div className="absolute bottom-4 right-4 w-[268px] md:bottom-10 md:right-10 md:w-[320px]">
+      <div className="px-4 pb-8 pt-3 md:absolute md:bottom-10 md:right-10 md:z-10 md:w-[320px] md:p-0">
         <Inside />
       </div>
-    </div>
+    </>
   )
 }

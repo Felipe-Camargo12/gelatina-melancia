@@ -111,18 +111,20 @@ export function KnifeTool() {
       raycaster.setFromCamera(ndc, camera)
       return raycaster.ray.intersectPlane(plane, out)
     }
+    // Só o ponteiro que começou o traço mira e corta (um segundo dedo é ignorado).
     const onDown = (e) => {
       if (e.button !== 0 || s.phase !== 'idle') return
       if (!project(e, s.a)) return
       s.b.copy(s.a)
+      s.pointerId = e.pointerId
       s.phase = 'aim'
       s.t = 0
     }
     const onMove = (e) => {
-      if (s.phase === 'aim') project(e, s.b)
+      if (s.phase === 'aim' && e.pointerId === s.pointerId) project(e, s.b)
     }
-    const onUp = () => {
-      if (s.phase !== 'aim') return
+    const onUp = (e) => {
+      if (s.phase !== 'aim' || e.pointerId !== s.pointerId) return
       if (s.a.distanceTo(s.b) < 0.25) {
         s.phase = 'idle'
         return
