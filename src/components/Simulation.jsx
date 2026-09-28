@@ -5,18 +5,20 @@ import { useRapier } from '@react-three/rapier'
 import { useStore } from '../store.js'
 import { registry, grab, endGrab, computeStats } from '../sim/registry.js'
 import { springParams, stepWobble, writeUniforms } from '../sim/wobble.js'
+import { stepRest } from '../sim/rest.js'
 import { GRAVITY } from '../jelly/constants.js'
 
 /*
  * Laço principal da simulação. O <Physics> fica `paused` e nós mesmos
- * chamamos step(): assim controlamos câmera lenta (¼ speed), pausa e a ordem
+ * chamamos step(): assim controlamos câmera lenta (Velocidade ¼), pausa e a ordem
  * exata de cada frame:
  *
  *   1. forças da Mão (mola ponteiro → ponto agarrado), por subpasso
  *   2. step do Rapier (subpassos de ≤ 1/120 s)
- *   3. molas do wobble, forçadas pela aceleração resultante dos corpos
- *   4. uniforms de deformação → shader
- *   5. estatísticas (~8 Hz) → painel
+ *   3. molas do balanço (sim/wobble.js), forçadas pela aceleração resultante dos corpos
+ *   4. repouso: peças que não saem do lugar vão dormir (sim/rest.js)
+ *   5. uniforms de deformação → shader
+ *   6. estatísticas (~8 Hz) → painel
  */
 
 const SUBSTEP = 1 / 120
@@ -125,7 +127,10 @@ export function Simulation() {
         step(h)
       }
       const sp = springParams(firmness, damping)
-      for (const entry of registry.values()) stepWobble(entry, dt, sp)
+      for (const entry of registry.values()) {
+        stepWobble(entry, dt, sp)
+        stepRest(entry, dt)
+      }
     }
     for (const entry of registry.values()) writeUniforms(entry)
 

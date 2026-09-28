@@ -58,7 +58,7 @@ export function endGrab() {
   useStore.getState().setGrabbing(false)
 }
 
-/** "Give it a nudge": um peteleco em cada peça + excitação direta das molas. */
+/** "Dar um peteleco": um peteleco em cada peça + excitação direta das molas. */
 export function nudgeAll() {
   for (const entry of registry.values()) {
     const body = entry.body

@@ -6,10 +6,11 @@ import { sharedUniforms } from '../jelly/base.js'
 import { createPieceMaterials } from '../jelly/material.js'
 import { registry, grab, beginGrab, ANGULAR_DAMPING } from '../sim/registry.js'
 import { createWobble } from '../sim/wobble.js'
+import { createRest } from '../sim/rest.js'
 
 /*
  * Uma peça de gelatina = corpo rígido do Rapier (collider = casco convexo
- * exato) + malha com o material jelly + wireframe opcional.
+ * "limpo", ver jelly/analyze.js) + malha com o material jelly + wireframe opcional.
  *
  * A geometria está no referencial da fatia original, então o corpo nasce na
  * pose da peça-mãe e o Rapier calcula sozinho o centro de massa real.
@@ -31,6 +32,7 @@ export function JellyPiece({ piece }) {
       meta: piece.meta,
       uniforms,
       wobble,
+      rest: createRest(),
       scratch: null,
     })
     return () => {
@@ -79,7 +81,7 @@ export function JellyPiece({ piece }) {
       linearDamping={0.05}
       angularDamping={ANGULAR_DAMPING}
     >
-      <ConvexHullCollider args={[piece.meta.hull]} density={1} friction={0.75} restitution={0.12} />
+      <ConvexHullCollider args={[piece.meta.collider]} density={1} friction={0.75} restitution={0.12} />
       <mesh
         geometry={piece.geometry}
         material={material}

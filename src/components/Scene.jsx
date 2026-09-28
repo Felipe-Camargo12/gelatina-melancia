@@ -11,7 +11,7 @@ import { VARIETIES } from '../jelly/varieties.js'
 import { GRAVITY, PAPER } from '../jelly/constants.js'
 
 /*
- * Iluminação de estúdio. O env map é gerado na hora a partir de Lightformers
+ * Iluminação de estúdio. O mapa de ambiente é gerado na hora a partir de Lightformers
  * (softboxes retangulares), sem baixar HDRI — os reflexos longos e brilhantes
  * na gelatina vêm deles. Para usar um HDRI real troque por:
  *   <Environment files="/studio.hdr" environmentIntensity={0.8} />

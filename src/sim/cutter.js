@@ -75,7 +75,7 @@ export function commitCut(jobs) {
   for (const job of jobs) {
     const entry = registry.get(job.id)
     if (!entry) {
-      // a peça sumiu no meio do caminho (Reset) — descarta
+      // a peça sumiu no meio do caminho (Reiniciar) — descarta
       job.parts.forEach((part) => part.geometry.dispose())
       continue
     }

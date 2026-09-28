@@ -115,8 +115,9 @@ function toArray(points) {
  * média ponderada pela área, deslocamento = ponto mais externo naquela
  * direção) e os vértices do collider saem da interseção exata desses
  * semiespaços, calculada pelo casco do conjunto dual. Resultado: faces
- * exatamente planas, sem lascas nem pontos repetidos, e um collider que contém
- * a peça inteira (nas partes curvas ele sobra no máximo alguns décimos de mm).
+ * exatamente planas, sem lascas nem pontos repetidos, metade dos vértices e um
+ * collider que contém a peça inteira (nas partes curvas ele sobra no máximo
+ * ~0,01 u, 0,3 mm na escala ilustrativa).
  */
 function cleanCollider(hull, hullPoints, center) {
   const cosMerge = Math.cos(PLANE_MERGE_ANGLE)

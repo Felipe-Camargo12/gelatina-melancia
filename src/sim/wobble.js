@@ -17,8 +17,8 @@ import { signedVolume } from '../jelly/analyze.js'
  * A aceleração passa por um filtro passa-alta: queda livre (aceleração
  * constante) não deforma, só mudanças bruscas (impactos, arrancos).
  *
- * Firmness  → frequência natural ω (trembling ≈ 1 Hz … set ≈ 7 Hz)
- * Damping   → razão de amortecimento ζ (lively ≈ 0.03 … syrupy ≈ 0.93)
+ * Firmeza               → frequência natural ω (trêmula ≈ 1 Hz … firme ≈ 7 Hz)
+ * Amortecimento interno → razão de amortecimento ζ (viva ≈ 0,03 … xaroposa ≈ 0,93)
  *
  * PARA EVOLUIR PARA UM SOFT BODY DE VERDADE: troque este módulo por um XPBD
  * com tetraedros (tetraedralize a malha — ex.: TetGen offline ou uma grade
@@ -76,9 +76,12 @@ export function stepWobble(entry, dt, sp) {
   }
 
   // Aceleração do corpo por diferença finita, limitada e filtrada (passa-alta).
-  let ax = (lv.x - w.prevLin.x) / dt
-  let ay = (lv.y - w.prevLin.y) / dt
-  let az = (lv.z - w.prevLin.z) / dt
+  // Corpo dormindo não acelera: o salto da velocidade para zero ao adormecer
+  // não pode chacoalhar a gelatina.
+  const invDt = entry.body.isSleeping() ? 0 : 1 / dt
+  let ax = (lv.x - w.prevLin.x) * invDt
+  let ay = (lv.y - w.prevLin.y) * invDt
+  let az = (lv.z - w.prevLin.z) * invDt
   const mag = Math.hypot(ax, ay, az)
   if (mag > MAX_ACC) {
     const s = MAX_ACC / mag
@@ -86,7 +89,7 @@ export function stepWobble(entry, dt, sp) {
     ay *= s
     az *= s
   }
-  let alpha = clamp((av.y - w.prevAng) / dt, -300, 300)
+  let alpha = clamp((av.y - w.prevAng) * invDt, -300, 300)
   w.prevLin.set(lv.x, lv.y, lv.z)
   w.prevAng = av.y
 

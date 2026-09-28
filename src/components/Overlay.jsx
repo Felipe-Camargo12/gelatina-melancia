@@ -27,6 +27,9 @@ function KnifeIcon() {
   )
 }
 
+/** Número no formato brasileiro (vírgula decimal). */
+const fmt = (n, digits) => n.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })
+
 const Label = ({ children, className = '' }) => (
   <p className={`font-sans text-[10.5px] font-medium uppercase tracking-[0.22em] text-muted ${className}`}>{children}</p>
 )
@@ -36,7 +39,7 @@ function Slider({ label, value, onChange, left, right }) {
     <div>
       <div className="flex items-baseline justify-between">
         <Label>{label}</Label>
-        <span className="font-mono text-[11px] text-ink">{value.toFixed(2)}</span>
+        <span className="font-mono text-[11px] text-ink">{fmt(value, 2)}</span>
       </div>
       <input
         type="range"
@@ -80,16 +83,16 @@ function ControlPanel() {
   return (
     <aside className="pointer-events-auto border border-line/90 bg-paper/70 px-5 pb-5 pt-4 backdrop-blur-[2px]">
       <div className="flex items-baseline justify-between border-b border-line pb-3">
-        <Label>The Specimen</Label>
+        <Label>O Espécime</Label>
         <span className="font-serif text-[13px] italic text-muted">fig. 9</span>
       </div>
 
       <div className="border-b border-line py-4">
-        <Label>Tool</Label>
+        <Label>Ferramenta</Label>
         <div className="mt-2.5 grid grid-cols-2 gap-1.5">
           {[
-            ['hand', 'Hand', <HandIcon key="h" />],
-            ['knife', 'Knife', <KnifeIcon key="k" />],
+            ['hand', 'Mão', <HandIcon key="h" />],
+            ['knife', 'Faca', <KnifeIcon key="k" />],
           ].map(([key, name, icon]) => (
             <button
               key={key}
@@ -106,7 +109,7 @@ function ControlPanel() {
       </div>
 
       <div className="border-b border-line py-4">
-        <Label>Variety</Label>
+        <Label>Variedade</Label>
         <div className="mt-2.5 grid grid-cols-3 gap-1.5">
           {VARIETY_KEYS.map((key) => (
             <button
@@ -126,29 +129,29 @@ function ControlPanel() {
       </div>
 
       <div className="space-y-3 border-b border-line py-4">
-        <Slider label="Firmness" value={firmness} onChange={a.setFirmness} left="trembling" right="set" />
-        <Slider label="Internal damping" value={damping} onChange={a.setDamping} left="lively" right="syrupy" />
+        <Slider label="Firmeza" value={firmness} onChange={a.setFirmness} left="trêmula" right="firme" />
+        <Slider label="Amortecimento interno" value={damping} onChange={a.setDamping} left="viva" right="xaroposa" />
       </div>
 
       <div className="space-y-3 pt-4">
         <div className="grid grid-cols-[1fr_auto] gap-1.5">
           <button onClick={a.nudge} className={btn}>
-            Give it a nudge
+            Dar um peteleco
           </button>
           <button onClick={a.reset} className={`${btn} px-4`}>
-            Reset
+            Reiniciar
           </button>
         </div>
         <div className="flex gap-5 py-0.5">
           <Check checked={slowMo} onChange={a.toggleSlowMo}>
-            ¼ speed
+            Velocidade ¼
           </Check>
           <Check checked={showMesh} onChange={a.toggleShowMesh}>
-            Show mesh
+            Ver malha
           </Check>
         </div>
         <button onClick={a.togglePaused} className={`${btn} w-full`}>
-          {paused ? 'Resume' : 'Pause'}
+          {paused ? 'Continuar' : 'Pausar'}
         </button>
       </div>
     </aside>
@@ -169,20 +172,26 @@ function Stat({ label, value, unit, last }) {
 
 function Stats() {
   const stats = useStore((s) => s.stats)
-  const kinetic = stats.kinetic >= 100 ? stats.kinetic.toFixed(0) : stats.kinetic.toFixed(2)
+  const kinetic = fmt(stats.kinetic, stats.kinetic >= 100 ? 0 : 2)
   return (
     <div className="grid grid-cols-[auto_auto_auto_1fr] border-t border-line">
-      <Stat label="Mass" value={`≈${Math.round(stats.mass)}`} unit="g" />
-      <Stat label="Volume" value={stats.volume.toFixed(1)} unit="% of rest" />
-      <Stat label="Kinetic" value={kinetic} unit="µJ" />
-      <Stat label="Pieces" value={stats.pieces} last />
+      <Stat label="Massa" value={`≈${fmt(stats.mass, 0)}`} unit="g" />
+      <Stat label="Volume" value={fmt(stats.volume, 1)} unit="% do repouso" />
+      <Stat label="Cinética" value={kinetic} unit="µJ" />
+      <Stat label="Peças" value={stats.pieces} last />
     </div>
   )
 }
 
 const HINTS = {
-  hand: ['Hand', 'Grab any piece — tip, corner, flesh or rind — and pull. Scroll while holding to twist it. Drag the empty table to orbit.'],
-  knife: ['Knife', 'Draw a line across the slice — the knife lines up over it and cuts when you let go. Cut the pieces again, as small as you like.'],
+  hand: [
+    'Mão',
+    'Agarre qualquer peça — ponta, canto, polpa ou casca — e puxe. Role a rodinha do mouse enquanto segura para torcê-la. Arraste a mesa vazia para girar a câmera.',
+  ],
+  knife: [
+    'Faca',
+    'Desenhe uma linha sobre a fatia — a faca se alinha a ela e corta quando você solta. Corte as peças de novo, do tamanho que quiser.',
+  ],
 }
 
 function Inside() {
@@ -192,23 +201,27 @@ function Inside() {
       {open && (
         <div className="max-h-[46vh] space-y-2.5 overflow-y-auto border-b border-line px-5 py-4 font-serif text-[13.5px] leading-[1.45] text-ink/80">
           <p>
-            Every piece is a <em>Rapier</em> rigid body whose collider is its exact convex hull — planar cuts of a convex
-            slice stay convex.
+            Cada peça é um corpo rígido do <em>Rapier</em> cujo colisor é o seu casco convexo — cortes planos de uma fatia
+            convexa continuam convexos. Uma peça que fica um instante sem sair do lugar adormece, para que o ruído de
+            contato não a deixe tremendo sozinha.
           </p>
           <p>
-            The wobble is four damped springs per piece — shear, squash, twist and a local grab field — driven by the body’s
-            own acceleration and applied in the vertex shader, with normals corrected through the deformation’s Jacobian.
+            O balanço vem de quatro molas amortecidas por peça — cisalhamento, achatamento, torção e um campo local de
+            puxão — forçadas pela aceleração do próprio corpo e aplicadas no shader de vértices, com as normais corrigidas
+            pelo Jacobiano da deformação.
           </p>
           <p>
-            The knife turns your stroke into a vertical plane and runs a subtraction and an intersection against a half-space
-            with <em>three-bvh-csg</em>. Colour is a solid 3D texture in the original slice’s coordinates, so each new face
-            reveals flesh, rind and seeds exactly where they were.
+            A faca transforma o seu traço num plano vertical e faz uma subtração e uma interseção contra um semiespaço com
+            o <em>three-bvh-csg</em>. A cor é uma textura sólida 3D nas coordenadas da fatia original, então cada face nova
+            revela polpa, casca e sementes exatamente onde estavam.
           </p>
-          <p className="font-sans text-[11px] not-italic text-muted">Keys: H hand · K knife · N nudge · R reset · Space pause</p>
+          <p className="font-sans text-[11px] not-italic text-muted">
+            Teclas: H mão · K faca · N peteleco · R reiniciar · Espaço pausa
+          </p>
         </div>
       )}
       <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-5 py-3.5">
-        <Label className="!text-ink/80">Inside the experiment</Label>
+        <Label className="!text-ink/80">Por dentro do experimento</Label>
         <span className="font-sans text-[15px] leading-none text-ink/70">{open ? '–' : '+'}</span>
       </button>
     </div>
@@ -224,24 +237,28 @@ export function Overlay() {
     <div className="pointer-events-none absolute inset-0 z-10 text-ink">
       {/* Cabeçalho */}
       <header className="absolute left-6 top-6 md:left-12 md:top-11">
-        <Label>Material Studies / No. 009</Label>
-        <h1 className="mt-5 font-serif text-[64px] font-normal italic leading-[0.8] tracking-[-0.025em] md:mt-7 md:text-[92px]">
-          Melon
+        <Label className="max-sm:tracking-[0.14em]">Estudos de Materiais / Nº 009</Label>
+        <h1 className="mt-5 font-serif text-[52px] font-normal italic leading-[0.8] tracking-[-0.025em] md:mt-7 md:text-[72px] lg:text-[92px]">
+          Gelatina
           <br />
-          <span className="ml-[0.5em]">Jelly.</span>
+          <span className="ml-[0.5em]">de melancia.</span>
         </h1>
         <p className="mt-5 hidden font-serif text-[16.5px] leading-[1.45] text-ink/75 md:block">
-          A slice of summer.
-          <br />A little wobble.
+          Uma fatia de verão.
           <br />
-          Too soft to share.
+          Um leve balançar.
+          <br />
+          Macia demais para dividir.
         </p>
       </header>
 
       {/* Selo do renderer */}
       <div className="absolute right-6 top-6 flex items-center gap-2 border border-line bg-paper/60 px-3 py-1.5 md:right-10 md:top-11">
         <span className={`size-[6px] rounded-full ${paused ? 'bg-amber-600' : 'bg-emerald-700'}`} />
-        <span className="font-mono text-[10px] tracking-[0.18em] text-ink/80">WEBGL2 · {paused ? 'PAUSED' : 'LIVE'}</span>
+        <span className="font-mono text-[10px] tracking-[0.18em] text-ink/80">
+          <span className="hidden sm:inline">WEBGL2 · </span>
+          {paused ? 'PAUSADO' : 'AO VIVO'}
+        </span>
       </div>
 
       {/* Dica da ferramenta + estatísticas */}
@@ -254,7 +271,8 @@ export function Overlay() {
         </p>
         <Stats />
         <p className="mt-2 max-w-[440px] font-sans text-[10.5px] leading-[1.5] text-muted">
-          Illustrative scale: 1 sim unit ≈ 3 cm, gummy at 1.3 g/cm³. Volume and energy are summed live over every piece.
+          Escala ilustrativa: 1 unidade da simulação ≈ 3 cm, goma a 1,3 g/cm³. Volume e energia são somados ao vivo sobre
+          todas as peças.
         </p>
       </footer>
 

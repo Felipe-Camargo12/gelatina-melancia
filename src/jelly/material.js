@@ -14,7 +14,7 @@ import { VARIETIES } from './varieties.js'
  *   2. o onBeforeCompile fica livre para injetarmos nossa deformação.
  *
  * Injeções via onBeforeCompile:
- *   VERTEX  — deformação "jelly" guiada por molas (ver sim/wobble.js). A
+ *   VERTEX  — deformação de gelatina guiada por molas (ver sim/wobble.js). A
  *             normal é corrigida analiticamente: n' = (J⁻¹)ᵀ n, onde J é o
  *             Jacobiano do campo de deslocamento.
  *   FRAGMENT — textura sólida 3D no espaço de repouso: polpa, faixa creme,
@@ -244,7 +244,7 @@ export function createPieceUniforms() {
 
 // --------------------------------------------------------------- materiais
 /**
- * Cria o par de materiais de uma peça: a gelatina e o wireframe do "Show mesh"
+ * Cria o par de materiais de uma peça: a gelatina e o wireframe do "Ver malha"
  * (que recebe a mesma deformação). O código do onBeforeCompile é idêntico
  * entre peças, então o three reaproveita o mesmo programa de shader; só os
  * objetos de uniform mudam.

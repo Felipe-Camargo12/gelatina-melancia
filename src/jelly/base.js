@@ -2,7 +2,7 @@ import { buildSliceGeometry } from './geometry.js'
 import { analyzeGeometry } from './analyze.js'
 import { createSharedUniforms, applyVariety } from './material.js'
 
-// A fatia original é construída uma vez e reaproveitada a cada Reset.
+// A fatia original é construída uma vez e reaproveitada a cada Reiniciar.
 export const BASE = buildSliceGeometry()
 BASE.meta = analyzeGeometry(BASE.geometry)
 BASE.geometry.userData.isBase = true
